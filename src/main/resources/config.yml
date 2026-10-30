@@ -1,0 +1,14 @@
+# Adresse d'écoute.
+# 127.0.0.1 = accessible uniquement depuis la machine (à utiliser derrière un reverse proxy).
+# 0.0.0.0   = accessible depuis tout le réseau (obligatoire si le serveur tourne dans Docker/Pterodactyl).
+bind-address: "127.0.0.1"
+port: 8080
+
+# Jeton d'accès à la page. Si "change-me" ou vide, un jeton aléatoire est généré au premier démarrage.
+token: "change-me"
+
+# Autorise l'exécution de commandes console depuis la page (très puissant : à activer en connaissance de cause).
+allow-console: false
+
+# À activer uniquement derrière un reverse proxy de confiance (lit X-Forwarded-For pour limiter les essais de jeton).
+trust-proxy: false

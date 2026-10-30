@@ -1,0 +1,1342 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nautilus Manager</title>
+  <link rel="icon" href="./favicon.png" />
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --panel2: #1e222b;
+      --line: #2a2f3a;
+      --txt: #e6e8ee;
+      --mut: #8b93a5;
+      --acc: #4ade80;
+      --danger: #f87171
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    [hidden] {
+      display: none !important
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--txt);
+      font: 14px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif
+    }
+
+    h1,
+    h2,
+    h3 {
+      margin: 0 0 10px
+    }
+
+    h3 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--mut)
+    }
+
+    input,
+    select {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      color: var(--txt);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font: inherit;
+      min-width: 0
+    }
+
+    input:focus,
+    select:focus {
+      outline: 2px solid var(--acc);
+      outline-offset: -1px
+    }
+
+    .btn {
+      background: var(--panel2);
+      border: 1px solid var(--line);
+      color: var(--txt);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font: inherit;
+      cursor: pointer
+    }
+
+    .btn:hover {
+      border-color: var(--mut)
+    }
+
+    .btn.primary {
+      background: var(--acc);
+      color: #052e16;
+      border-color: var(--acc);
+      font-weight: 600
+    }
+
+    .btn.danger {
+      color: var(--danger);
+      border-color: #5b2a2a
+    }
+
+    .btn.danger:hover {
+      background: #2a1618
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px
+    }
+
+    .mut {
+      color: var(--mut)
+    }
+
+    .small {
+      font-size: 12px
+    }
+
+    .err {
+      color: var(--danger);
+      min-height: 1.4em;
+      margin: 0
+    }
+
+    .empty {
+      color: var(--mut);
+      text-align: center;
+      padding: 24px 0;
+      margin: 0
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center
+    }
+
+    .row>input {
+      flex: 1 1 90px
+    }
+
+    .between {
+      justify-content: space-between
+    }
+
+    .group {
+      margin-top: 14px
+    }
+
+    .group>.small {
+      display: block;
+      margin-bottom: 6px
+    }
+
+    .center {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 16px
+    }
+
+    #login-form {
+      width: 100%;
+      max-width: 360px;
+      display: grid;
+      gap: 12px;
+      margin: 0
+    }
+
+    header {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+      flex-wrap: wrap
+    }
+
+    header {
+      position: relative;
+      z-index: 30
+    }
+
+    .grow {
+      flex: 1
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--mut)
+    }
+
+    .dot.ok {
+      background: var(--acc)
+    }
+
+    .dot.ko {
+      background: var(--danger)
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: calc(100vh - 58px);
+      transition: grid-template-columns .15s
+    }
+
+    .shell.collapsed {
+      grid-template-columns: 60px 1fr
+    }
+
+    #sidebar {
+      background: var(--panel);
+      border-right: 1px solid var(--line);
+      padding: 12px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow: hidden
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      background: none;
+      border: 0;
+      color: var(--mut);
+      padding: 10px 12px;
+      border-radius: 8px;
+      font: inherit;
+      cursor: pointer;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden
+    }
+
+    .nav-item:hover {
+      background: var(--panel2);
+      color: var(--txt)
+    }
+
+    .nav-item.active {
+      background: var(--panel2);
+      color: var(--acc)
+    }
+
+    .nav-item .ico {
+      width: 20px;
+      text-align: center;
+      flex: none
+    }
+
+    .nav-item .count {
+      margin-left: auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 99px;
+      padding: 0 7px;
+      font-size: 12px
+    }
+
+    .nav-item .count:empty {
+      display: none
+    }
+
+    .shell.collapsed .lbl,
+    .shell.collapsed .count {
+      display: none
+    }
+
+    .content {
+      padding: 16px;
+      min-width: 0
+    }
+
+    .view h2 {
+      margin: 0 0 14px
+    }
+
+    .tiles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px
+    }
+
+    .tile {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 14px
+    }
+
+    .tile .v {
+      font-size: 22px;
+      font-weight: 700;
+      margin-top: 4px
+    }
+
+    .grid-players {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 8px
+    }
+
+    .players-layout {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 16px;
+      align-items: start
+    }
+
+    .inline {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px
+    }
+
+    .inline input {
+      flex: 1
+    }
+
+    .check {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      cursor: pointer
+    }
+
+    .avatar.ph {
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      color: var(--mut)
+    }
+
+    @media(max-width:860px) {
+
+      .shell,
+      .shell.collapsed {
+        grid-template-columns: 1fr
+      }
+
+      #sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 220px;
+        padding-top: 68px;
+        z-index: 20;
+        transform: translateX(-100%);
+        transition: transform .2s
+      }
+
+      .shell.open #sidebar {
+        transform: none;
+        box-shadow: 0 0 40px rgba(0, 0, 0, .6)
+      }
+
+      .shell.collapsed .lbl,
+      .shell.collapsed .count {
+        display: inline
+      }
+
+      .shell.collapsed .count:empty {
+        display: none
+      }
+
+      .players-layout {
+        grid-template-columns: 1fr
+      }
+    }
+
+    aside>input {
+      width: 100%;
+      margin-bottom: 12px
+    }
+
+    #players {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 16px
+    }
+
+    .player {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      text-align: left;
+      width: 100%;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      color: var(--txt);
+      border-radius: 12px;
+      padding: 10px;
+      cursor: pointer;
+      font: inherit
+    }
+
+    .player:hover {
+      border-color: var(--mut)
+    }
+
+    .player.active {
+      border-color: var(--acc)
+    }
+
+    .pinfo {
+      flex: 1;
+      min-width: 0
+    }
+
+    .pname {
+      font-weight: 600
+    }
+
+    .avatar {
+      border-radius: 6px;
+      image-rendering: pixelated;
+      background: var(--panel2);
+      flex: none
+    }
+
+    .badge {
+      background: #3b2f0a;
+      color: #fbbf24;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 99px;
+      margin-left: 6px;
+      font-weight: 500
+    }
+
+    .bar {
+      height: 5px;
+      background: var(--panel2);
+      border-radius: 3px;
+      margin-top: 6px;
+      overflow: hidden
+    }
+
+    .bar i {
+      display: block;
+      height: 100%;
+      background: var(--acc)
+    }
+
+    .head {
+      display: flex;
+      gap: 14px;
+      align-items: center
+    }
+
+    .head h2 {
+      margin: 0
+    }
+
+    .kv {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 6px 12px
+    }
+
+    .actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .inv-wrap {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      align-items: flex-start
+    }
+
+    .inv-main {
+      display: grid;
+      grid-template-columns: repeat(9, 44px);
+      gap: 4px
+    }
+
+    .inv-main .slot:nth-child(n+28) {
+      margin-top: 8px
+    }
+
+    .inv-side {
+      display: grid;
+      gap: 4px
+    }
+
+    .slot {
+      width: 44px;
+      height: 44px;
+      border: 1px solid var(--line);
+      background: var(--panel2);
+      border-radius: 6px;
+      position: relative;
+      padding: 0;
+      color: #fff;
+      font: inherit
+    }
+
+    .slot.filled {
+      background: var(--acc);
+      cursor: pointer;
+      border-color: rgba(255, 255, 255, .25)
+    }
+
+    .slot.held {
+      outline: 2px solid var(--acc)
+    }
+
+    .slot.ench {
+      box-shadow: inset 0 0 8px #a78bfa
+    }
+
+    .slot .abbr {
+      font-weight: 700;
+      font-size: 12px
+    }
+
+    .slot .qty {
+      position: absolute;
+      right: 3px;
+      bottom: 1px;
+      font-size: 11px;
+      font-weight: 700;
+      text-shadow: 0 1px 2px #000
+    }
+
+    dialog {
+      background: var(--panel);
+      color: var(--txt);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 20px;
+      max-width: 380px;
+      width: 90%
+    }
+
+    dialog::backdrop {
+      background: rgba(0, 0, 0, .6)
+    }
+
+    dialog p {
+      margin: 6px 0
+    }
+
+    #toasts {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      display: grid;
+      gap: 8px;
+      z-index: 10
+    }
+
+    .toast {
+      background: var(--panel2);
+      border: 1px solid var(--acc);
+      border-radius: 8px;
+      padding: 10px 14px
+    }
+
+    .toast.bad {
+      border-color: var(--danger)
+    }
+
+    .refresh {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 10px
+    }
+
+    #refresh-icon {
+      display: inline-block
+    }
+
+    .refreshing #refresh-icon {
+      animation: spin .8s linear infinite
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
+
+    #refresh-bar {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      height: 2px;
+      width: 0;
+      background: var(--acc);
+      opacity: .7
+    }
+
+    #refresh-bar.run {
+      animation: fill linear forwards
+    }
+
+    @keyframes fill {
+      from {
+        width: 0
+      }
+
+      to {
+        width: 100%
+      }
+    }
+
+    .dot.pulse {
+      animation: pulse .7s ease-out
+    }
+
+    @keyframes pulse {
+      from {
+        box-shadow: 0 0 0 0 rgba(74, 222, 128, .8)
+      }
+
+      to {
+        box-shadow: 0 0 0 9px rgba(74, 222, 128, 0)
+      }
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 8px
+    }
+
+    .sw {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+      padding: 0;
+      cursor: pointer
+    }
+
+    .sw:hover {
+      outline: 2px solid var(--txt)
+    }
+
+    .picker {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: 0;
+      background: none;
+      cursor: pointer
+    }
+
+    .tb {
+      padding: 2px 9px;
+      min-width: 30px
+    }
+
+    .sep {
+      width: 1px;
+      height: 20px;
+      background: var(--line);
+      margin: 0 2px
+    }
+
+    .mc-preview {
+      background: #1a1a1a;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      color: #fff;
+      font-family: ui-monospace, Consolas, monospace;
+      white-space: pre-wrap;
+      word-break: break-word;
+      min-height: 2.4em
+    }
+
+    .obf {
+      filter: blur(3px)
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+      * {
+        animation: none !important;
+        transition: none !important
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="login" class="center">
+    <form id="login-form" class="card">
+      <h1> Nautilus Manager</h1>
+      <input id="token" type="password" placeholder="Jeton d'accès (config.yml du plugin)" required autocomplete="off">
+      <button class="btn primary">Connexion</button>
+      <p id="login-error" class="err"></p>
+    </form>
+  </div>
+
+  <div id="app" hidden>
+    <header>
+      <button id="menu-toggle" class="btn" type="button" aria-label="Menu" aria-expanded="true" title="Menu">☰</button>
+      <strong> Nautilus Manager</strong>
+      <span id="srv-version" class="mut"></span>
+      <span class="grow"></span>
+      <span id="status" class="dot" title="État de la connexion"></span>
+      <button id="refresh" class="btn refresh" type="button" title="Actualiser maintenant"><span
+          id="refresh-icon">↻</span><span id="refresh-text" class="small">Connexion…</span></button>
+      <button id="logout" class="btn">Déconnexion</button>
+      <div id="refresh-bar"></div>
+    </header>
+    <div id="shell" class="shell">
+      <nav id="sidebar" aria-label="Navigation">
+        <button class="nav-item" data-view="dashboard" title="Tableau de bord"><span class="ico">📊</span><span
+            class="lbl">Tableau de bord</span></button>
+        <button class="nav-item" data-view="players" title="Joueurs"><span class="ico">👥</span><span
+            class="lbl">Joueurs</span><span id="nav-count" class="count"></span></button>
+        <button class="nav-item" data-view="console" title="Messages et console"><span class="ico">💬</span><span
+            class="lbl">Messages &amp; console</span></button>
+        <button class="nav-item" data-view="settings" title="Paramètres"><span class="ico">⚙️</span><span
+            class="lbl">Paramètres</span></button>
+      </nav>
+
+      <div class="content">
+        <section id="view-dashboard" class="view">
+          <h2>Tableau de bord</h2>
+          <div class="tiles">
+            <div class="tile"><span class="mut small">Joueurs</span>
+              <div class="v" id="t-players">–</div>
+            </div>
+            <div class="tile"><span class="mut small">TPS</span>
+              <div class="v" id="t-tps">–</div>
+            </div>
+            <div class="tile"><span class="mut small">Mémoire</span>
+              <div class="v" id="t-mem">–</div>
+              <div class="bar"><i id="t-mem-bar" style="width:0"></i></div>
+            </div>
+            <div class="tile"><span class="mut small">Version</span>
+              <div class="v" id="t-ver">–</div>
+            </div>
+          </div>
+          <h3>Joueurs en ligne</h3>
+          <div id="dash-players" class="grid-players"></div>
+        </section>
+
+        <section id="view-players" class="view" hidden>
+          <div class="players-layout">
+            <aside>
+              <input id="search" type="search" placeholder="Rechercher un joueur…">
+              <div id="players"></div>
+            </aside>
+            <section id="detail">
+              <p class="empty">Sélectionne un joueur dans la liste.</p>
+            </section>
+          </div>
+        </section>
+
+        <section id="view-console" class="view" hidden>
+          <h2>Messages &amp; console</h2>
+          <section class="card">
+            <h3>Envoyer un message</h3>
+            <div class="row" style="margin-bottom:10px">
+              <label class="small mut" for="msg-target">Destinataire</label>
+              <select id="msg-target">
+                <option value="">Tous les joueurs</option>
+              </select>
+            </div>
+            <div id="msg-composer"></div>
+            <p class="small mut" style="margin:10px 0 0">Choisis une couleur ou un style (sur le texte sélectionné), ou
+              tape les balises à la main, par exemple &lt;gradient:red:blue&gt;texte&lt;/gradient&gt; (l'aperçu
+              l'affiche sans dégradé).</p>
+          </section>
+          <section class="card">
+            <h3>Console du serveur</h3>
+            <form id="console-form" class="inline"><input id="console" placeholder="Commande console (sans /)"
+                required><button class="btn">Exécuter</button></form>
+            <p class="small mut" style="margin:0">La console doit être activée dans config.yml (allow-console). Le
+              résultat de la commande n'est pas affiché ici.</p>
+          </section>
+        </section>
+
+        <section id="view-settings" class="view" hidden>
+          <h2>Paramètres</h2>
+          <section class="card">
+            <h3>Rafraîchissement</h3>
+            <p class="small mut" style="margin-top:0">Fréquence à laquelle la page interroge le plugin.</p>
+            <select id="set-interval">
+              <option value="2000">Toutes les 2 secondes</option>
+              <option value="4000">Toutes les 4 secondes</option>
+              <option value="10000">Toutes les 10 secondes</option>
+              <option value="30000">Toutes les 30 secondes</option>
+            </select>
+          </section>
+          <section class="card">
+            <h3>Avatars</h3>
+            <label class="check"><input type="checkbox" id="set-avatars"> Afficher la tête des joueurs (image chargée
+              depuis mc-heads.net)</label>
+          </section>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <dialog id="item-dialog"></dialog>
+  <div id="toasts"></div>
+
+  <script>
+    const $ = (s, r = document) => r.querySelector(s);
+    const GM = { SURVIVAL: 'Survie', CREATIVE: 'Créatif', ADVENTURE: 'Aventure', SPECTATOR: 'Spectateur' };
+    const SLOT_LABEL = { 36: 'Bottes', 37: 'Jambières', 38: 'Plastron', 39: 'Casque', 40: 'Main secondaire' };
+
+    let token = sessionStorage.getItem('token') || '';
+    let players = [], selected = null, timer = null, busy = false;
+
+    // Création DOM sans innerHTML : les noms de joueurs / d'items ne sont jamais interprétés comme du HTML.
+    function el(tag, attrs = {}, ...kids) {
+      const e = document.createElement(tag);
+      for (const [k, v] of Object.entries(attrs)) {
+        if (k === 'class') e.className = v;
+        else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+        else if (v !== false && v != null) e.setAttribute(k, v);
+      }
+      for (const kid of kids.flat()) if (kid != null) e.append(kid);
+      return e;
+    }
+
+    const pretty = t => t.toLowerCase().split('_').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
+    const abbr = t => t.split('_').map(w => w[0]).join('').slice(0, 3);
+    const color = t => { let h = 0; for (const c of t) h = (h * 31 + c.charCodeAt(0)) >>> 0; return `hsl(${h % 360} 45% 36%)`; };
+    const slotLabel = s => SLOT_LABEL[s] || (s < 9 ? `Barre rapide ${s + 1}` : 'Sac');
+
+    function toast(msg, bad = false) {
+      const t = el('div', { class: 'toast' + (bad ? ' bad' : '') }, msg);
+      $('#toasts').append(t);
+      setTimeout(() => t.remove(), 3500);
+    }
+
+    async function api(path, opts = {}) {
+      const res = await fetch('/api/' + path, {
+        method: opts.method || 'GET',
+        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+        body: opts.body ? JSON.stringify(opts.body) : undefined
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 401) { logout(); throw new Error(data.error || 'Jeton invalide'); }
+      if (!res.ok) throw new Error(data.error || 'Erreur ' + res.status);
+      return data;
+    }
+
+    // ---------- Session ----------
+    $('#login-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      token = $('#token').value.trim();
+      $('#login-error').textContent = '';
+      try { await api('server'); sessionStorage.setItem('token', token); $('#token').value = ''; start(); }
+      catch (err) { $('#login-error').textContent = err.message; }
+    });
+    $('#logout').addEventListener('click', logout);
+
+    function start() {
+      $('#login').hidden = true; $('#app').hidden = false;
+      refresh(); restartTimer();
+    }
+    function restartTimer() { clearInterval(timer); timer = setInterval(refresh, +store.get('interval', '4000')); }
+    function logout() {
+      clearInterval(timer); sessionStorage.removeItem('token'); token = ''; selected = null; players = [];
+      $('#app').hidden = true; $('#login').hidden = false;
+    }
+
+    // ---------- Rafraîchissement ----------
+    async function refresh() {
+      if (busy) return;
+      busy = true;
+      const t0 = Date.now();
+      setRefreshing(true);
+      try {
+        const [srv, list] = await Promise.all([api('server'), api('players')]);
+        renderServer(srv);
+        players = list;
+        renderPlayers();
+        if (selected) {
+          const p = players.find(x => x.uuid === selected);
+          if (p) await updateDetail(p);
+          else { selected = null; $('#detail').replaceChildren(el('p', { class: 'empty' }, 'Le joueur s\'est déconnecté.')); }
+        }
+        markRefresh(true);
+      } catch (err) {
+        markRefresh(false);
+      } finally {
+        busy = false;
+        setTimeout(() => setRefreshing(false), Math.max(0, 600 - (Date.now() - t0)));
+      }
+    }
+
+    function renderServer(s) {
+      $('#srv-version').textContent = 'Minecraft ' + s.version;
+      $('#t-players').textContent = `${s.online} / ${s.max}`;
+      $('#t-tps').textContent = s.tps;
+      $('#t-tps').style.color = s.tps < 15 ? 'var(--danger)' : s.tps < 18 ? '#fbbf24' : '';
+      $('#t-mem').textContent = `${s.memUsedMb} / ${s.memMaxMb} Mo`;
+      $('#t-mem-bar').style.width = Math.min(100, s.memUsedMb / s.memMaxMb * 100) + '%';
+      $('#t-ver').textContent = s.version;
+    }
+
+    // ---------- Liste des joueurs ----------
+    $('#search').addEventListener('input', renderPlayers);
+
+    function avatar(p, size) {
+      if (store.get('avatars', '1') !== '1') {
+        return el('span', { class: 'avatar ph', style: `width:${size}px;height:${size}px` }, p.name[0].toUpperCase());
+      }
+      const img = el('img', {
+        class: 'avatar', width: size, height: size, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer',
+        src: `https://mc-heads.net/avatar/${encodeURIComponent(p.uuid)}/${size * 2}`
+      });
+      img.addEventListener('error', () => { img.style.visibility = 'hidden'; });
+      return img;
+    }
+
+    function renderPlayers() {
+      const q = $('#search').value.toLowerCase();
+      const list = players.filter(p => p.name.toLowerCase().includes(q));
+      $('#players').replaceChildren(...(list.length ? list.map(playerCard) : [el('p', { class: 'empty' }, 'Aucun joueur')]));
+      $('#dash-players').replaceChildren(...(players.length ? players.map(playerCard) : [el('p', { class: 'empty' }, 'Aucun joueur en ligne')]));
+      $('#nav-count').textContent = players.length || '';
+      updateTargets();
+    }
+
+    function playerCard(p) {
+      const pct = Math.max(0, Math.min(100, p.health / p.maxHealth * 100));
+      return el('button', { class: 'player' + (p.uuid === selected ? ' active' : ''), onclick: () => selectPlayer(p.uuid) },
+        avatar(p, 36),
+        el('div', { class: 'pinfo' },
+          el('div', { class: 'pname' }, p.name, p.op ? el('span', { class: 'badge' }, 'OP') : null),
+          el('div', { class: 'mut small' }, `${GM[p.gamemode]} · ${p.ping} ms · ${p.world}`),
+          el('div', { class: 'bar' }, el('i', { style: `width:${pct}%` }))));
+    }
+
+    // ---------- Détail d'un joueur ----------
+    function selectPlayer(uuid) {
+      showView('players');
+      selected = uuid;
+      const p = players.find(x => x.uuid === uuid);
+      if (!p) return;
+      const clear = el('button', {
+        class: 'btn danger', onclick: () => {
+          const c = players.find(x => x.uuid === selected);
+          if (c && confirm(`Vider tout l'inventaire de ${c.name} ? Sac, barre rapide, armure et main secondaire seront supprimés, sans pouvoir les récupérer.`))
+            invOp({ op: 'clear' }, 'Inventaire vidé');
+        }
+      }, 'Vider l\'inventaire');
+
+      $('#detail').replaceChildren(
+        el('div', { class: 'card head' }, avatar(p, 56),
+          el('div', {}, el('h2', { id: 'd-name' }), el('div', { id: 'd-uuid', class: 'mut small' }))),
+        el('div', { class: 'card' }, el('h3', {}, 'Statistiques'), el('div', { id: 'd-stats', class: 'kv' })),
+        actionsCard(p),
+        el('div', { class: 'card' },
+          el('div', { class: 'row between' }, el('h3', {}, 'Inventaire'), clear),
+          el('div', { id: 'd-inv' }),
+          el('div', { class: 'group' }, el('span', { class: 'small mut' }, 'Donner un item (nom Minecraft, ex : diamond_sword)'), giveForm())));
+      renderPlayers();
+      updateDetail(p);
+    }
+
+    function actionsCard(p) {
+      const cur = () => players.find(x => x.uuid === selected);
+      const name = () => cur()?.name ?? '';
+
+      const gm = el('select', { id: 'd-gm' }, Object.entries(GM).map(([k, v]) => el('option', { value: k }, v)));
+      gm.addEventListener('change', () => act('gamemode', { value: gm.value }, 'Mode de jeu modifié'));
+
+      const toggleOp = () => {
+        const c = cur(); if (!c) return;
+        if (c.op) {
+          if (confirm(`Retirer les droits OP à ${c.name} ? Il perdra l'accès aux commandes d'administration.`)) act('deop', {}, 'OP retiré');
+        } else if (confirm(`Donner les droits OP à ${c.name} ? Il pourra utiliser toutes les commandes (/op, /gamemode, /stop…).`)) {
+          act('op', {}, 'OP accordé');
+        }
+      };
+      const kick = () => {
+        const r = prompt(`Expulser ${name()} ? Il pourra se reconnecter immédiatement. Raison :`, 'Expulsé par un administrateur');
+        if (r !== null) act('kick', { reason: r }, 'Joueur expulsé');
+      };
+      const ban = () => {
+        if (!confirm(`Bannir ${name()} ? Il sera expulsé et ne pourra plus se reconnecter tant qu'il n'est pas débanni (/pardon ${name()}).`)) return;
+        const r = prompt('Raison du bannissement :', 'Banni par un administrateur');
+        if (r !== null) act('ban', { reason: r }, 'Joueur banni');
+      };
+      const kill = () => {
+        if (confirm(`Tuer ${name()} ? Il perd son inventaire, sauf si la règle keepInventory est activée.`)) act('kill', {}, 'Joueur tué');
+      };
+
+      const [tx, ty, tz] = ['X', 'Y', 'Z'].map(a => el('input', { type: 'number', step: 'any', placeholder: a, required: true }));
+      tx.value = Math.round(p.x); ty.value = Math.round(p.y); tz.value = Math.round(p.z);
+      const tw = el('input', { placeholder: 'Monde (optionnel)' });
+      const tp = el('select', { id: 'd-tp' });
+
+      return el('div', { class: 'card' },
+        el('h3', {}, 'Actions'),
+        el('div', { class: 'actions' },
+          el('button', { class: 'btn', onclick: () => act('heal', {}, 'Joueur soigné') }, 'Soigner'),
+          el('button', { class: 'btn', onclick: () => act('feed', {}, 'Joueur nourri') }, 'Nourrir'),
+          el('button', { class: 'btn', id: 'd-op', onclick: toggleOp }, 'OP'),
+          el('button', { class: 'btn danger', onclick: kick }, 'Expulser'),
+          el('button', { class: 'btn danger', onclick: ban }, 'Bannir'),
+          el('button', { class: 'btn danger', onclick: kill }, 'Tuer')),
+        el('div', { class: 'group' }, el('span', { class: 'small mut' }, 'Mode de jeu'), gm),
+        el('div', { class: 'group' }, el('span', { class: 'small mut' }, 'Message privé (couleurs et styles possibles)'),
+          composer({ placeholder: 'Message pour ' + p.name, button: 'Envoyer', onSend: text => sendMessage(selected, text) })),
+        el('div', { class: 'group' }, el('span', { class: 'small mut' }, 'Téléporter à des coordonnées'),
+          el('form', { class: 'row', onsubmit: e => { e.preventDefault(); act('teleport', { x: +tx.value, y: +ty.value, z: +tz.value, world: tw.value }, 'Téléportation lancée'); } },
+            tx, ty, tz, tw, el('button', { class: 'btn' }, 'Téléporter'))),
+        el('div', { class: 'group' }, el('span', { class: 'small mut' }, 'Téléporter vers un autre joueur'),
+          el('form', { class: 'row', onsubmit: e => { e.preventDefault(); if (tp.value) act('teleport-to', { target: tp.value }, 'Téléportation lancée'); else toast('Aucun autre joueur en ligne', true); } },
+            tp, el('button', { class: 'btn' }, 'Rejoindre'))));
+    }
+
+    async function updateDetail(p) {
+      const name = $('#d-name');
+      if (!name) return;
+      name.replaceChildren(p.name, p.op ? el('span', { class: 'badge' }, 'OP') : null);
+      $('#d-uuid').textContent = p.uuid;
+      const stats = [['Mode', GM[p.gamemode]], ['Vie', `${p.health} / ${p.maxHealth}`], ['Faim', `${p.food} / 20`],
+      ['Niveau', p.level], ['Ping', `${p.ping} ms`], ['Monde', p.world], ['Position', `${p.x}, ${p.y}, ${p.z}`]];
+      $('#d-stats').replaceChildren(...stats.flatMap(([k, v]) => [el('span', { class: 'mut' }, k), el('span', {}, String(v))]));
+
+      const gm = $('#d-gm'); if (document.activeElement !== gm) gm.value = p.gamemode;
+      $('#d-op').textContent = p.op ? 'Retirer OP' : 'Donner OP';
+
+      const tp = $('#d-tp');
+      const others = players.filter(x => x.uuid !== p.uuid);
+      const key = others.map(x => x.uuid).join();
+      if (tp.dataset.key !== key) {
+        const prev = tp.value; tp.dataset.key = key;
+        tp.replaceChildren(...others.map(o => el('option', { value: o.uuid }, o.name)));
+        tp.value = prev;
+      }
+
+      try {
+        const inv = await api(`players/${p.uuid}/inventory`);
+        if (selected === p.uuid) renderInventory(inv);
+      } catch (e) { /* le prochain cycle réessaiera */ }
+    }
+
+    // ---------- Inventaire ----------
+    function renderInventory(inv) {
+      const bySlot = new Map(inv.items.map(i => [i.slot, i]));
+      const order = [];
+      for (let s = 9; s < 36; s++) order.push(s);
+      for (let s = 0; s < 9; s++) order.push(s);
+
+      const cell = s => {
+        const item = bySlot.get(s);
+        const b = el('button', {
+          class: 'slot' + (item ? ' filled' : '') + (item?.enchanted ? ' ench' : '') + (s === inv.heldSlot ? ' held' : ''),
+          title: item ? `${pretty(item.type)}${item.name ? ' — ' + item.name : ''} ×${item.amount}` : slotLabel(s),
+          disabled: !item
+        });
+        if (item) {
+          b.style.setProperty('--c', color(item.type));
+          b.append(el('span', { class: 'abbr' }, abbr(item.type)), el('span', { class: 'qty' }, item.amount > 1 ? String(item.amount) : ''));
+          b.addEventListener('click', () => openItem(s, item));
+        }
+        return b;
+      };
+
+      $('#d-inv').replaceChildren(el('div', { class: 'inv-wrap' },
+        el('div', { class: 'inv-side' }, [39, 38, 37, 36, 40].map(cell)),
+        el('div', { class: 'inv-main' }, order.map(cell))));
+    }
+
+    function openItem(slot, item) {
+      const dlg = $('#item-dialog');
+      dlg.replaceChildren(
+        el('h3', {}, pretty(item.type)),
+        item.name ? el('p', {}, 'Nom : ' + item.name) : null,
+        el('p', { class: 'mut' }, `Quantité : ${item.amount} · ${slotLabel(slot)} (slot ${slot})${item.enchanted ? ' · enchanté' : ''}`),
+        el('p', { class: 'small mut' }, 'Supprimer retire l\'item de l\'inventaire sans le déposer au sol : il est perdu.'),
+        el('div', { class: 'row group' },
+          el('button', { class: 'btn danger', onclick: async () => { await invOp({ op: 'remove', slot }, 'Item supprimé'); dlg.close(); } }, 'Supprimer'),
+          el('button', { class: 'btn', onclick: () => dlg.close() }, 'Fermer')));
+      dlg.showModal();
+    }
+
+    function giveForm() {
+      const mat = el('input', { placeholder: 'diamond', required: true, pattern: '[A-Za-z0-9_:]+' });
+      const qty = el('input', { type: 'number', min: 1, max: 2304, value: 1, style: 'max-width:90px' });
+      return el('form', { class: 'row', onsubmit: e => { e.preventDefault(); invOp({ op: 'give', material: mat.value.trim(), amount: +qty.value }, 'Item donné'); mat.value = ''; } },
+        mat, qty, el('button', { class: 'btn' }, 'Donner'));
+    }
+
+    // ---------- Appels d'actions ----------
+    async function act(action, extra, okMsg) {
+      try {
+        await api(`players/${selected}/action`, { method: 'POST', body: { action, ...extra } });
+        toast(okMsg); refresh();
+      } catch (e) { toast(e.message, true); }
+    }
+
+    async function invOp(body, okMsg) {
+      try {
+        const r = await api(`players/${selected}/inventory`, { method: 'POST', body });
+        toast(r.notAdded ? `${okMsg} (${r.notAdded} non ajouté(s) : inventaire plein)` : okMsg);
+        refresh();
+      } catch (e) { toast(e.message, true); }
+    }
+
+    $('#console-form').addEventListener('submit', async e => {
+      e.preventDefault();
+      const command = $('#console').value.trim().replace(/^\//, '');
+      if (!command) return;
+      try {
+        const r = await api('console', { method: 'POST', body: { command } });
+        toast(r.ok ? 'Commande exécutée' : 'Commande inconnue ou en échec', !r.ok);
+        $('#console').value = '';
+      } catch (err) { toast(err.message, true); }
+    });
+
+    // ---------- Préférences (stockées dans le navigateur) ----------
+    const store = {
+      get: (k, d) => { try { return localStorage.getItem(k) ?? d; } catch (e) { return d; } },
+      set: (k, v) => { try { localStorage.setItem(k, v); } catch (e) { /* stockage indisponible */ } }
+    };
+
+    // ---------- Menu latéral ----------
+    const shell = $('#shell');
+    const isMobile = () => matchMedia('(max-width:860px)').matches;
+
+    function showView(name) {
+      if (!$('#view-' + name)) name = 'dashboard';
+      document.querySelectorAll('.view').forEach(v => { v.hidden = v.id !== 'view-' + name; });
+      document.querySelectorAll('.nav-item').forEach(b => b.classList.toggle('active', b.dataset.view === name));
+      store.set('view', name);
+      shell.classList.remove('open');
+    }
+
+    document.querySelectorAll('.nav-item').forEach(b => b.addEventListener('click', () => showView(b.dataset.view)));
+
+    $('#menu-toggle').addEventListener('click', () => {
+      const mobile = isMobile();
+      const on = shell.classList.toggle(mobile ? 'open' : 'collapsed');
+      $('#menu-toggle').setAttribute('aria-expanded', String(mobile ? on : !on));
+      if (!mobile) store.set('menu-collapsed', on ? '1' : '0');
+    });
+
+    if (store.get('menu-collapsed', '0') === '1') {
+      shell.classList.add('collapsed');
+      $('#menu-toggle').setAttribute('aria-expanded', 'false');
+    }
+    showView(store.get('view', 'dashboard'));
+
+    // ---------- Paramètres ----------
+    const setInterval_ = $('#set-interval');
+    setInterval_.value = store.get('interval', '4000');
+    setInterval_.addEventListener('change', () => {
+      store.set('interval', setInterval_.value);
+      restartTimer();
+      toast('Fréquence de rafraîchissement mise à jour');
+    });
+
+    const setAvatars = $('#set-avatars');
+    setAvatars.checked = store.get('avatars', '1') === '1';
+    setAvatars.addEventListener('change', () => {
+      store.set('avatars', setAvatars.checked ? '1' : '0');
+      renderPlayers();
+      toast(setAvatars.checked ? 'Avatars activés' : 'Avatars désactivés');
+    });
+
+    // ---------- Indicateur d'actualisation ----------
+    function setRefreshing(on) { $('#refresh').classList.toggle('refreshing', on); }
+
+    function restartBar() {
+      const bar = $('#refresh-bar');
+      bar.classList.remove('run'); void bar.offsetWidth;
+      bar.style.animationDuration = store.get('interval', '4000') + 'ms';
+      bar.classList.add('run');
+    }
+
+    function markRefresh(ok) {
+      const dot = $('#status');
+      const now = new Date().toLocaleTimeString('fr-FR');
+      dot.className = 'dot ' + (ok ? 'ok' : 'ko');
+      $('#refresh-text').textContent = ok ? `Actualisé à ${now}` : `Connexion perdue (essai à ${now})`;
+      if (ok) { void dot.offsetWidth; dot.classList.add('pulse'); }
+      restartBar();
+    }
+
+    $('#refresh').addEventListener('click', () => refresh());
+
+    // ---------- Messages colorés (balises MiniMessage) ----------
+    const MC_COLORS = {
+      black: '#000000', dark_blue: '#0000AA', dark_green: '#00AA00', dark_aqua: '#00AAAA', dark_red: '#AA0000',
+      dark_purple: '#AA00AA', gold: '#FFAA00', gray: '#AAAAAA', dark_gray: '#555555', blue: '#5555FF', green: '#55FF55',
+      aqua: '#55FFFF', red: '#FF5555', light_purple: '#FF55FF', yellow: '#FFFF55', white: '#FFFFFF'
+    };
+    const DECOS = {
+      bold: 'b', b: 'b', italic: 'i', i: 'i', em: 'i', underlined: 'u', u: 'u',
+      strikethrough: 's', st: 's', obfuscated: 'k', obf: 'k'
+    };
+
+    // Entoure le texte sélectionné (ou place le curseur entre les balises s'il n'y a pas de sélection).
+    function wrapSelection(input, open, close) {
+      const s = input.selectionStart ?? input.value.length;
+      const e = input.selectionEnd ?? s;
+      const selected = input.value.slice(s, e);
+      input.setRangeText(open + selected + close, s, e, 'end');
+      if (!selected) input.setSelectionRange(s + open.length, s + open.length);
+      input.focus();
+      input.dispatchEvent(new Event('input'));
+    }
+
+    // Aperçu approximatif du rendu en jeu (couleurs, styles, arc-en-ciel). Les balises inconnues restent affichées telles quelles.
+    function renderPreview(text, target) {
+      const out = [], stack = [];
+      let hue = 0;
+
+      const span = (str, col) => {
+        const deco = new Set(stack.filter(s => s.deco).map(s => s.deco));
+        const sp = el('span', {}, str);
+        if (col) sp.style.color = col;
+        const line = [deco.has('u') && 'underline', deco.has('s') && 'line-through'].filter(Boolean).join(' ');
+        if (line) sp.style.textDecoration = line;
+        if (deco.has('b')) sp.style.fontWeight = '700';
+        if (deco.has('i')) sp.style.fontStyle = 'italic';
+        if (deco.has('k')) sp.className = 'obf';
+        return sp;
+      };
+
+      const emit = str => {
+        if (!str) return;
+        let color = null, rainbow = false;
+        for (const s of stack) {
+          if (s.color) { color = s.color; rainbow = false; }
+          if (s.rainbow) rainbow = true;
+        }
+        if (rainbow) for (const ch of str) out.push(span(ch, `hsl(${(hue++ * 25) % 360} 90% 60%)`));
+        else out.push(span(str, color));
+      };
+
+      const re = /<(\/?)(#[0-9a-f]{6}|[a-z_]+)(?::[^<>]*)?>/gi;
+      let last = 0, m;
+      while ((m = re.exec(text))) {
+        const closing = m[1] === '/';
+        const name = m[2].toLowerCase();
+        const special = name === 'reset' || name === 'newline' || name === 'br';
+        const style = Object.hasOwn(MC_COLORS, name) ? { color: MC_COLORS[name] }
+          : name.startsWith('#') ? { color: name }
+            : Object.hasOwn(DECOS, name) ? { deco: DECOS[name] }
+              : name === 'rainbow' ? { rainbow: true }
+                : name === 'gradient' ? {}
+                  : null;
+        if (!style && !special) continue;
+        emit(text.slice(last, m.index));
+        last = re.lastIndex;
+        if (name === 'reset') stack.length = 0;
+        else if (special) emit('\n');
+        else if (closing) { const i = stack.map(s => s.name).lastIndexOf(name); if (i >= 0) stack.length = i; }
+        else stack.push({ name, ...style });
+      }
+      emit(text.slice(last));
+      target.replaceChildren(...(out.length ? out : [el('span', { class: 'mut' }, 'Aperçu du message')]));
+    }
+
+    // Champ de message avec barre de couleurs/styles et aperçu. onSend(texte) doit renvoyer true si l'envoi a réussi.
+    function composer({ placeholder, button, onSend }) {
+      const input = el('input', { placeholder, required: true, maxlength: 1000, autocomplete: 'off' });
+      const preview = el('div', { class: 'mc-preview' });
+      const update = () => renderPreview(input.value, preview);
+      input.addEventListener('input', update);
+
+      const tag = name => () => wrapSelection(input, `<${name}>`, `</${name}>`);
+      const swatches = Object.entries(MC_COLORS).map(([name, hex]) => {
+        const b = el('button', { type: 'button', class: 'sw', title: name.replace('_', ' '), onclick: tag(name) });
+        b.style.background = hex;
+        return b;
+      });
+      const picker = el('input', { type: 'color', value: '#ff8800', class: 'picker', title: 'Couleur personnalisée' });
+      picker.addEventListener('change', () => tag(picker.value)());
+      const styleBtn = (label, name, css, title) => el('button', { type: 'button', class: 'btn tb', title, style: css, onclick: tag(name) }, label);
+
+      const form = el('form', {
+        onsubmit: async e => {
+          e.preventDefault();
+          if (await onSend(input.value)) { input.value = ''; update(); }
+        }
+      },
+        el('div', { class: 'toolbar' }, swatches, picker, el('span', { class: 'sep' }),
+          styleBtn('B', 'bold', 'font-weight:700', 'Gras'),
+          styleBtn('I', 'italic', 'font-style:italic', 'Italique'),
+          styleBtn('U', 'underlined', 'text-decoration:underline', 'Souligné'),
+          styleBtn('S', 'strikethrough', 'text-decoration:line-through', 'Barré'),
+          styleBtn('?', 'obfuscated', '', 'Obfusqué (les caractères changent en jeu)'),
+          styleBtn('🌈', 'rainbow', '', 'Arc-en-ciel')),
+        el('div', { class: 'inline' }, input, el('button', { class: 'btn' }, button)),
+        preview);
+      update();
+      return form;
+    }
+
+    // target vide = tous les joueurs ; sinon UUID du destinataire.
+    async function sendMessage(target, text) {
+      try {
+        if (target) {
+          await api(`players/${target}/action`, { method: 'POST', body: { action: 'message', value: text } });
+          toast('Message envoyé');
+        } else {
+          const r = await api('broadcast', { method: 'POST', body: { message: text } });
+          toast(`Annonce envoyée à ${r.recipients} joueur(s)`);
+        }
+        return true;
+      } catch (e) { toast(e.message, true); return false; }
+    }
+
+    function updateTargets() {
+      const sel = $('#msg-target');
+      const key = players.map(p => p.uuid).join();
+      if (sel.dataset.key === key) return;
+      const prev = sel.value;
+      sel.dataset.key = key;
+      sel.replaceChildren(el('option', { value: '' }, 'Tous les joueurs'), ...players.map(p => el('option', { value: p.uuid }, p.name)));
+      sel.value = players.some(p => p.uuid === prev) ? prev : '';
+    }
+
+    $('#msg-composer').append(composer({
+      placeholder: 'Écris ton message…',
+      button: 'Envoyer',
+      onSend: text => sendMessage($('#msg-target').value, text)
+    }));
+
+    if (token) start();
+  </script>
+</body>
+
+</html>

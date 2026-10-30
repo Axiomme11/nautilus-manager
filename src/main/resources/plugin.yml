@@ -1,0 +1,9 @@
+name: nautilus-manager
+description: $description
+version: '${version}'
+
+main: fr.axiomme.nautilusManager.NautilusManager
+api-version: '26.2'
+load: POSTWORLD
+
+authors: [ Axiomme ]
